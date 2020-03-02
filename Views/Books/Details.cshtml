@@ -1,0 +1,81 @@
+﻿@model ELibrary.Models.BookViewModel
+@using ELibrary.Models
+
+    @{
+        ViewBag.Title = "Details";
+    }
+
+    <h2>Details</h2>
+
+    <div>
+        <h4>Book</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            @*@if (Model.FileDetails.Any(f => f.FileType == FileType.Photo))
+            {
+                <dt>
+                    Photo
+                </dt>
+                <dd>
+                    <img src="~/Uploads/@ViewBag.ImageAddress" alt="" class="thumbnail img-thumbnail" width="150" height="170" />
+                    <a href="~/Uploads/@ViewBag.FileAddress" alt="">@Model.Title</a>
+                </dd>
+            }*@
+            <dt>
+                Photo
+            </dt>
+            <dd>
+                <img src="~/Uploads/@Model.Image" alt="" class="thumbnail img-thumbnail" width="150" height="170" />
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Category)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Category)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Language)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Language)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Title)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Title)
+                @{
+                    var size = (decimal)(Model.Size);
+                    size = size / (1024 * 1024);
+                    size = Math.Round(size, 2);
+                    string sizeToDisplay = size.ToString() + " MB";
+
+                }
+                <span>@sizeToDisplay</span>
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.ISBN)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.ISBN)
+            </dd>
+            <dd>
+                <a href="~/Uploads/@Model.File" class="btn btn-success btn-sm" alt="">Read more</a>
+                @Html.ActionLink("Download","Download", new  { p = Model.File, d=Model.FileName}, htmlAttributes: new  { @class="btn btn-sm btn-primary"})
+            </dd>
+
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+    
+

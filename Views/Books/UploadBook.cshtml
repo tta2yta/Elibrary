@@ -1,0 +1,126 @@
+﻿@model ELibrary.Models.BookFormViewModel
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm("SaveAs", "Books", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Book</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Book.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Book.Title, "", new { @class = "text-danger" })
+            </div>
+            
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.ISBN, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Book.ISBN, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Book.ISBN, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.CategoryId, "LanguageId", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(m => m.Book.CategoryId, new SelectList(Model.Categories, "Id", "Name"),
+                                                    "Select Category", new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Book.CategoryId)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.LanguageId, "LanguageId", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(m => m.Book.LanguageId, new SelectList(Model.Languages, "Id", "Name"),
+                                                    "Select Language", new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Book.LanguageId)
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="file" class="control-label col-md-2">Upload File</label>
+            <div class="col-md-10">
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.File, new { type = "file" })
+                    @Html.ValidationMessageFor(m => m.File)
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="file" class="control-label col-md-2">Upload Image</label>
+            <div class="col-md-10">
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.Image, new { type = "file" })
+                    @Html.ValidationMessageFor(m => m.Image)
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input id="btnAddAuthor" type="button" value="Add Author" class="btn btn-primary" onclick="AddAuthorTextBox()" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-8" id="AuthorTextBoxContainer">
+                <!--Textboxes will be added here -->
+            </div>
+        </div>  
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script>
+    function GetDynamicTextBox(value) {
+        var div = $("<div />");
+
+        var textBoxFirstName = $("<input />").attr("type", "textbox").attr("name", "AuthorFirstNameTextBox").attr("placeholder", "Enter First Name");
+        textBoxFirstName.val(value);
+        div.append(textBoxFirstName);
+        
+        div.append("&nbsp;")
+
+        var textBoxLastName = $("<input />").attr("type", "textbox").attr("name", "AuthorLastNameTextBox").attr("placeholder", "Enter Last Name");
+        textBoxLastName.val(value);
+        div.append(textBoxLastName);
+            
+        div.append("&nbsp;")
+
+        var button = $("<input />").attr("type", "button").attr("value", "Remove").attr("class","btn btn-danger btn-sm");
+        button.attr("onclick", "RemoveTextBox(this)");
+        div.append(button);
+
+        return div;
+    }
+    function AddAuthorTextBox() {
+        var div = GetDynamicTextBox("");
+        $("#AuthorTextBoxContainer").append(div);
+    }
+
+    function RemoveTextBox(button) {
+        $(button).parent().remove();
+    }
+</script>

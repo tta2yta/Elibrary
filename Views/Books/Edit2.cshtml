@@ -1,0 +1,195 @@
+﻿@model ELibrary.Models.BookFormViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm("Save", "Books", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Book</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Book.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Book.Title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.ISBN, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Book.ISBN, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Book.ISBN, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.CategoryId, "LanguageId", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(m => m.Book.CategoryId, new SelectList(Model.Categories, "Id", "Name"),
+                                                    "Select Category", new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Book.CategoryId)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Book.LanguageId, "LanguageId", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(m => m.Book.LanguageId, new SelectList(Model.Languages, "Id", "Name"),
+                                                    "Select Language", new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Book.LanguageId)
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="file" class="control-label col-md-2">Upload File</label>
+            <div class="col-md-10">
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.File, new { type = "file" })
+                    @Html.ValidationMessageFor(m => m.File)
+                </div>
+                <div class="fileItem">
+                    @foreach (var item in Model.Book.FileDetails)
+                    {
+                        if (item.FileType == FileType.Pdf)
+                        {
+                            <div>
+                                <a href="/Books/Download/?p=@(item.Id + "-" + item.FileName)&d=@item.FileName" class="" alt="">@item.FileName</a>
+                                <a href="javascript:void(0);" data-id="@item.Id" class="deleteItem"><span class="glyphicon glyphicon-trash text-right"></span></a>
+                            </div>
+                        }
+
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="file" class="control-label col-md-2">Upload Image</label>
+            <div class="col-md-10">
+                <div class="editor-field">
+                    @Html.TextBoxFor(m => m.Image, new { type = "file" })
+                    @Html.ValidationMessageFor(m => m.Image)
+                </div>
+                <div class="fileItem">
+                    @foreach (var item in Model.Book.FileDetails)
+                    {
+                        if (item.FileType == FileType.Photo)
+                        {
+                            <div>
+                                <a href="/Books/Download/?p=@(item.Id + "-" + item.FileName)&d=@item.FileName" class="" alt="">@item.FileName</a>
+                                <a href="javascript:void(0);" data-id="@item.Id" class="deleteItem"><span class="glyphicon glyphicon-trash text-right"></span></a>
+                            </div>
+                        }
+
+                    }
+                </div>
+            </div>
+        </div>
+        @Html.HiddenFor(m => m.Book.Id)
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+<table class="table">
+    <tr>
+        <th>
+            First Name
+        </th>
+        <th>
+            Last Name
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Book.Authors)
+    {
+        <tr class="authorItem">
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                <a href="javascript:void(0);" data-id="@(Model.Book.Id + "-" + item.Id)" class="deleteAuthor"><span class="glyphicon glyphicon-trash text-right"></span></a>
+
+            </td>
+        </tr>
+    }
+
+</table>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $('.deleteItem').click(function (e) {
+            e.preventDefault();
+            var $ctrl = $(this);
+            if (confirm('Do you really want to delete this file?')) {
+                $.ajax({
+                    url: '@Url.Action("DeleteFile")',
+                    type: 'POST',
+                    data: { id: $(this).data('id') }
+                }).done(function (data) {
+                    if (data.Result == "OK") {
+                        $ctrl.closest('.fileItem').remove();
+
+                    }
+                    else if (data.Result.Message) {
+                        alert(data.Result.Message);
+                    }
+                }).fail(function () {
+                    alert("There is something wrong. Please try again.");
+                })
+
+            }
+        });
+    </script>
+<script>
+        $('.deleteAuthor').click(function (e) {
+            e.preventDefault();
+            var $ctrl2 = $(this);
+            if (confirm('Do you really want to delete this author?')) {
+                $.ajax({
+                    url: '@Url.Action("DeleteAuthor")',
+                    type: 'POST',
+                    data:
+                        {
+                            id: $(this).data('id')
+                        }
+                }).done(function (data) {
+                    if (data.Result == "OK") {
+                        $ctrl2.closest('.authorItem').remove();
+
+                    }
+                    else if (data.Result.Message) {
+                        alert(data.Result.Message);
+                    }
+                }).fail(function () {
+                    alert("There is something wrong. Please try again.");
+                })
+
+            }
+        });
+</script>
+}
